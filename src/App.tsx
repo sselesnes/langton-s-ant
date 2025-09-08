@@ -1,19 +1,14 @@
 // import { useState } from "react";
 import "./App.css";
 
-const gridData = [
-  [1, 0, 0, 1, 0],
-  [0, 1, 1, 0, 1],
-  [1, 0, 1, 0, 1],
-  [0, 1, 0, 1, 0],
-  [1, 0, 1, 0, 1],
-];
+const gridSize = [40, 30]; //columns y, row x
+const gridData = Array.from({ length: gridSize[0] }, () =>
+  Array.from({ length: gridSize[1] }, () => 0)
+);
 
-interface CellProps {
-  value: number;
-}
+gridData[1][2] = 1; //x,y
 
-function Cell({ value }: CellProps) {
+function Cell({ value }: { value: number }) {
   const cellState = value ? "cell color-set" : "cell color-unset";
   return <div className={cellState}> </div>;
 }
