@@ -8,7 +8,6 @@
   justify-content: center;
   gap: 1px;
   max-width: 95vw;
-  max-height: 85vh;
 }
 
 .grid-row {
@@ -19,6 +18,9 @@
 .cell {
   width: clamp(1px, 8vw, 2rem);
   aspect-ratio: 1 / 1;
+  transition: background-color 0.1s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .color-set {
@@ -27,4 +29,26 @@
 
 .color-unset {
   background-color: lightgray;
+}
+
+.ant-icon {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+  transition: transform 0.1s ease;
+}
+
+.title {
+  text-align: center;
+}
+
+.stats {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
 }
