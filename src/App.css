@@ -1,29 +1,24 @@
 #root {
-  max-width: 1280px;
   margin: 0 auto;
-  padding: 1rem;
-  text-align: center;
 }
 
 .grid-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 0.1rem;
-  height: 90vh;
+  gap: 1px;
+  max-width: 95vw;
+  max-height: 85vh;
 }
 
 .grid-row {
   display: flex;
-  gap: 0.1rem;
+  gap: 1px;
 }
 
 .cell {
-  width: 10px;
-  height: 10px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  width: clamp(1px, 8vw, 2rem);
+  aspect-ratio: 1 / 1;
 }
 
 .color-set {

@@ -1,35 +1,47 @@
 // import { useState } from "react";
-// import { Children } from "react";
+
 import "./App.css";
+
+// array center coords
+// direction clockwise 0 up, 1 right, 2 down, 3 left
+const directions = [
+  { dx: 0, dy: -1 },
+  { dx: 1, dy: 0 },
+  { dx: 0, dy: 1 },
+  { dx: -1, dy: 0 },
+];
 
 interface AntProps {
   x: number;
   y: number;
+  dir: number;
 }
 
-const gridSize = [40, 30]; //columns y, row x
+const gridSize = [10, 10]; //columns y, row x
 const gridData = Array.from({ length: gridSize[0] }, () =>
   Array.from({ length: gridSize[1] }, () => 0)
 );
 
-// array center coords
 const antProps = {
   x: Math.round(gridSize[0] / 2),
   y: Math.round(gridSize[1] / 2),
+  dir: 0,
 };
 
-function ant(props: AntProps) {
-  // На білому квадраті — повернути на 90° праворуч, змінити колір квадрата на чорний, зробити крок уперед наступну клітину.
-  if (gridData[props.x][props.y] === 0) {
+function ant({ x, y, dir }: AntProps) {
+  // На білому квадраті — повернути на 90' праворуч, змінити колір квадрата на чорний, зробити крок уперед наступну клітину.
+  // На чорному квадраті - повернути на 90' ліворуч, змінити колір квадрата на білий, зробити крок уперед на наступну клітину.
+  if (gridData[x][y] === 0) {
     console.log("0");
-  }
-
-  // На чорному квадраті - повернути на 90 ° вліво, змінити колір квадрата на білий, зробити крок уперед на наступну клітину.
-  if (gridData[props.x][props.y] === 1) {
+    gridData[x][y] = 1;
+    dir = (dir + 1) % 4;
+  } else if (gridData[x][y] === 1) {
     console.log("1");
+    gridData[x][y] = 0;
+    dir = (dir - 1 + 4) % 4;
   }
+  console.log(x, y, dir);
 }
-// direction 0 up, 1 right, 2 down, 3 left
 
 function Cell({ value }: { value: number }) {
   const cellState = value ? "cell color-set" : "cell color-unset";
@@ -50,4 +62,5 @@ export default function App() {
   );
 }
 
+ant(antProps);
 ant(antProps);
