@@ -16,7 +16,7 @@
 }
 
 .cell {
-  width: clamp(1px, 8vw, 2rem);
+  width: clamp(1px, 8vw, 1rem);
   aspect-ratio: 1 / 1;
   transition: background-color 0.1s ease;
   position: relative;
@@ -39,7 +39,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10;
+  z-index: 1;
   transition: transform 0.1s ease;
 }
 
