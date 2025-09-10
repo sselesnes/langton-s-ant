@@ -1,7 +1,6 @@
-// import "./App.css";
 import { useState, useEffect } from "react";
 
-const gridSize = [40, 40]; // [rows, columns]
+const gridSize = [40, 40]; // rows [y], columns[x]
 
 const antDir = [
   { dx: 0, dy: -1 }, // 0: up
@@ -10,17 +9,99 @@ const antDir = [
   { dx: -1, dy: 0 }, // 3: left
 ];
 
+export default function App() {
+  const [ant, setAnt] = useState({
+    x: Math.round(gridSize[1] / 2),
+    y: Math.round(gridSize[0] / 2),
+    dir: 0,
+    count: 0,
+  });
+
+  const [gridData, setGridData] = useState(() =>
+    // створюємо rows [y] та заповнюємо кожен з cells [x]
+    Array.from({ length: gridSize[0] }, () => Array.from({ length: gridSize[1] }, () => 0))
+  );
+
+  useEffect(() => {
+    const step = () => {
+      setAnt(prevAnt => {
+        const { x, y, dir, count } = prevAnt;
+
+        const isOutOfGrid = y < 0 || y >= gridSize[0] || x < 0 || x >= gridSize[1];
+        if (isOutOfGrid) {
+          return prevAnt;
+        }
+
+        // глибока копія для стану (React immutability)
+        const newGridData = gridData.map(row => [...row]);
+
+        let newDir;
+
+        // білий -> 90' за годинниковою стрілкою
+        if (newGridData[y][x] === 0) {
+          newDir = (dir + 1) % 4;
+          newGridData[y][x] = 1;
+        } else {
+          // чорний -> 90' проти годинникової стрілки
+          newDir = (dir - 1 + 4) % 4;
+          newGridData[y][x] = 0;
+        }
+        // змінюємо координати
+        // беремо з antDir по модулю 4
+        const { dx, dy } = antDir[newDir];
+        const newX = x + dx;
+        const newY = y + dy;
+        // оновлюємо стан
+        const newCount = count + 1;
+        setGridData(newGridData);
+        return { x: newX, y: newY, dir: newDir, count: newCount };
+      });
+    };
+
+    const intervalId = setInterval(step, 150);
+
+    return () => clearInterval(intervalId);
+  }, [gridData, ant]);
+
+  return (
+    <>
+      <div className="flex flex-col justify-center gap-px max-w-[95vw] mx-auto">
+        <h1 className="text-3xl font-bold mb-4 text-center">Мураха Ленгтона</h1>
+        {gridData.map((rowArray, rowIndex) => (
+          <div key={rowIndex} className="flex gap-px">
+            {rowArray.map((cellValue, colIndex) => (
+              <Cell
+                key={`${rowIndex}-${colIndex}`}
+                cellValue={cellValue}
+                antIsHere={ant.x === colIndex && ant.y === rowIndex}
+                antDirection={ant.dir}
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+      <div className="flex justify-center w-full gap-2 mt-6 text-sm">
+        <p>
+          Позиція: ({ant.x}, {ant.y})
+        </p>
+        <p>Напрямок: {ant.dir}</p>
+        <p>Крок: {ant.count}</p>
+      </div>
+    </>
+  );
+}
+
 function Cell({
-  value,
+  cellValue,
   antIsHere,
   antDirection,
 }: {
-  value: number;
+  cellValue: number;
   antIsHere: boolean;
   antDirection: number;
 }) {
   const cellState = `w-[clamp(1px,8vw,1rem)] aspect-square transition-colors duration-100 ease-in-out relative overflow-hidden ${
-    value === 1 ? "bg-blue-500" : "bg-gray-300"
+    cellValue === 1 ? "bg-blue-500" : "bg-gray-300"
   }`;
 
   return (
@@ -42,80 +123,5 @@ function Cell({
         </div>
       )}
     </div>
-  );
-}
-
-export default function App() {
-  const [ant, setAnt] = useState({
-    x: Math.round(gridSize[1] / 2),
-    y: Math.round(gridSize[0] / 2),
-    dir: 0,
-    count: 0,
-  });
-
-  const [gridData, setGridData] = useState(() =>
-    Array.from({ length: gridSize[0] }, () => Array.from({ length: gridSize[1] }, () => 0))
-  );
-
-  useEffect(() => {
-    const step = () => {
-      setAnt(prevAnt => {
-        const { x, y, dir, count } = prevAnt;
-
-        const isOutOfGrid = y < 0 || y >= gridSize[0] || x < 0 || x >= gridSize[1];
-        if (isOutOfGrid) {
-          return prevAnt;
-        }
-
-        const newGridData = gridData.map(row => [...row]);
-        let newDir;
-
-        if (newGridData[y][x] === 0) {
-          newDir = (dir + 1) % 4;
-          newGridData[y][x] = 1;
-        } else {
-          newDir = (dir - 1 + 4) % 4;
-          newGridData[y][x] = 0;
-        }
-
-        const { dx, dy } = antDir[newDir];
-        const newX = x + dx;
-        const newY = y + dy;
-        const newCount = count + 1;
-        setGridData(newGridData);
-        return { x: newX, y: newY, dir: newDir, count: newCount };
-      });
-    };
-
-    const intervalId = setInterval(step, 150);
-
-    return () => clearInterval(intervalId);
-  }, [gridData, ant]);
-
-  return (
-    <>
-      <div className="flex flex-col justify-center gap-px max-w-[95vw] mx-auto">
-        <h1 className="text-3xl font-bold mb-4 text-center">Мураха Ленгтона</h1>
-        {gridData.map((rowArray, rowIndex) => (
-          <div key={rowIndex} className="flex gap-px">
-            {rowArray.map((cellValue, colIndex) => (
-              <Cell
-                key={`${rowIndex}-${colIndex}`}
-                value={cellValue}
-                antIsHere={ant.x === colIndex && ant.y === rowIndex}
-                antDirection={ant.dir}
-              />
-            ))}
-          </div>
-        ))}
-      </div>
-      <div className="flex justify-center w-full gap-2 mt-6 text-sm">
-        <p>
-          Позиція: ({ant.x}, {ant.y})
-        </p>
-        <p>Напрямок: {ant.dir}</p>
-        <p>Крок: {ant.count}</p>
-      </div>
-    </>
   );
 }
