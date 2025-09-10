@@ -1,4 +1,4 @@
-import "./App.css";
+// import "./App.css";
 import { useState, useEffect } from "react";
 
 const gridSize = [40, 40]; // [rows, columns]
@@ -19,15 +19,17 @@ function Cell({
   antIsHere: boolean;
   antDirection: number;
 }) {
-  const cellState = value === 1 ? "cell color-set" : "cell color-unset";
-  const antStyle = {
-    transform: `rotate(${antDirection * 90}deg)`,
-  };
+  const cellState = `w-[clamp(1px,8vw,1rem)] aspect-square transition-colors duration-100 ease-in-out relative overflow-hidden ${
+    value === 1 ? "bg-blue-500" : "bg-gray-300"
+  }`;
 
   return (
     <div className={cellState}>
       {antIsHere && (
-        <div className="ant-icon" style={antStyle}>
+        <div
+          className="absolute -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center z-10 transition-transform duration-100 ease-in-out"
+          style={{ transform: `rotate(${antDirection * 90}deg)` }}
+        >
           <svg
             width="32"
             height="32"
@@ -92,10 +94,10 @@ export default function App() {
 
   return (
     <>
-      <div className="grid-container">
-        <h1 className="title">Мураха Ленгтона</h1>
+      <div className="flex flex-col justify-center gap-px max-w-[95vw] mx-auto">
+        <h1 className="text-3xl font-bold mb-4 text-center">Мураха Ленгтона</h1>
         {gridData.map((rowArray, rowIndex) => (
-          <div key={rowIndex} className="grid-row">
+          <div key={rowIndex} className="flex gap-px">
             {rowArray.map((cellValue, colIndex) => (
               <Cell
                 key={`${rowIndex}-${colIndex}`}
@@ -107,7 +109,7 @@ export default function App() {
           </div>
         ))}
       </div>
-      <div className="stats">
+      <div className="flex justify-center w-full gap-2 mt-6 text-sm">
         <p>
           Позиція: ({ant.x}, {ant.y})
         </p>

@@ -1,37 +1,33 @@
-#root {
-  margin: 0 auto;
-}
-
-.grid-container {
+/* .grid-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 1px;
   max-width: 95vw;
-}
+} */
 
-.grid-row {
+/* .grid-row {
   display: flex;
   gap: 1px;
-}
+} */
 
-.cell {
+/* .cell {
   width: clamp(1px, 8vw, 1rem);
   aspect-ratio: 1 / 1;
   transition: background-color 0.1s ease;
   position: relative;
   overflow: hidden;
-}
+} */
 
-.color-set {
+/* .color-set {
   background-color: dodgerblue;
 }
 
 .color-unset {
   background-color: lightgray;
-}
+} */
 
-.ant-icon {
+/* .ant-icon {
   position: absolute;
   transform: translate(-50%, -50%);
   width: 100%;
@@ -41,14 +37,14 @@
   justify-content: center;
   z-index: 1;
   transition: transform 0.1s ease;
-}
+} */
 
-.title {
+/* .title {
   text-align: center;
-}
+} */
 
-.stats {
+/* .stats {
   display: flex;
   justify-content: center;
   gap: 8px;
-}
+} */
