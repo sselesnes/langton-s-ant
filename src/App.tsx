@@ -48,6 +48,7 @@ export default function App() {
     x: Math.round(gridSize[1] / 2),
     y: Math.round(gridSize[0] / 2),
     dir: 0,
+    count: 0,
   });
 
   const [gridData, setGridData] = useState(() =>
@@ -57,7 +58,7 @@ export default function App() {
   useEffect(() => {
     const step = () => {
       setAnt(prevAnt => {
-        const { x, y, dir } = prevAnt;
+        const { x, y, dir, count } = prevAnt;
 
         const isOutOfGrid = y < 0 || y >= gridSize[0] || x < 0 || x >= gridSize[1];
         if (isOutOfGrid) {
@@ -78,9 +79,9 @@ export default function App() {
         const { dx, dy } = antDir[newDir];
         const newX = x + dx;
         const newY = y + dy;
-
+        const newCount = count + 1;
         setGridData(newGridData);
-        return { x: newX, y: newY, dir: newDir };
+        return { x: newX, y: newY, dir: newDir, count: newCount };
       });
     };
 
@@ -111,6 +112,7 @@ export default function App() {
           Позиція: ({ant.x}, {ant.y})
         </p>
         <p>Напрямок: {ant.dir}</p>
+        <p>Крок: {ant.count}</p>
       </div>
     </>
   );
