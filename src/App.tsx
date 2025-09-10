@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 
-const gridSize = [40, 40]; // rows [y], columns[x]
+const gridSize = [40, 60]; // rows [y], columns[x]
 
 const antDir = [
   { dx: 0, dy: -1 }, // 0: up
@@ -15,10 +15,11 @@ export default function App() {
     y: Math.round(gridSize[0] / 2),
     dir: 0,
     count: 0,
+    limit: 0,
   });
 
   const [gridData, setGridData] = useState(() =>
-    // створюємо rows [y] та заповнюємо кожен з cells [x]
+    // створюємо rows [y] та заповнюємо кожен з cells (columns) [x]
     Array.from({ length: gridSize[0] }, () => Array.from({ length: gridSize[1] }, () => 0))
   );
 
@@ -32,7 +33,7 @@ export default function App() {
           return prevAnt;
         }
 
-        // глибока копія для стану (React immutability)
+        // копія (глибока) для стану (React immutability)
         const newGridData = gridData.map(row => [...row]);
 
         let newDir;
@@ -58,7 +59,7 @@ export default function App() {
       });
     };
 
-    const intervalId = setInterval(step, 150);
+    const intervalId = setInterval(step, 250);
 
     return () => clearInterval(intervalId);
   }, [gridData, ant]);
@@ -66,7 +67,20 @@ export default function App() {
   return (
     <>
       <div className="flex flex-col justify-center gap-px max-w-[95vw] mx-auto">
-        <h1 className="text-3xl font-bold mb-4 text-center">Мураха Ленгтона</h1>
+        <div className="flex justify-around">
+          <h1 className="text-3xl font-bold mb-4 text-center">Мураха Ленгтона</h1>
+          <div className="flex flex-col w-20 bg-blue md:flex-row md:w-auto md:h-8">
+            <label htmlFor="count" className="text-sm ">
+              Ліміт кроків:
+            </label>
+            <input
+              type="number"
+              className="w-20 border border-none bg-inherit rounded-sm text-center"
+              value={ant.limit}
+              onChange={e => setAntLimit(Number(e.target.value))}
+            />
+          </div>
+        </div>
         {gridData.map((rowArray, rowIndex) => (
           <div key={rowIndex} className="flex gap-px">
             {rowArray.map((cellValue, colIndex) => (
@@ -81,6 +95,9 @@ export default function App() {
         ))}
       </div>
       <div className="flex justify-center w-full gap-2 mt-6 text-sm">
+        <p>
+          Сітка: {gridSize[1]} х {gridSize[0]}
+        </p>
         <p>
           Позиція: ({ant.x}, {ant.y})
         </p>
