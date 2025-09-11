@@ -16,6 +16,7 @@ export default function App() {
     dir: 0,
     count: 0,
     limit: 0,
+    speed: 250,
   });
 
   const [gridData, setGridData] = useState(() =>
@@ -25,12 +26,15 @@ export default function App() {
 
   useEffect(() => {
     const step = () => {
-      setAnt(prevAnt => {
-        const { x, y, dir, count } = prevAnt;
+      setAnt(antProps => {
+        const { x, y, dir, count, limit } = antProps;
 
         const isOutOfGrid = y < 0 || y >= gridSize[0] || x < 0 || x >= gridSize[1];
         if (isOutOfGrid) {
-          return prevAnt;
+          return antProps;
+        }
+        if (limit && count >= limit) {
+          return antProps;
         }
 
         // копія (глибока) для стану (React immutability)
@@ -55,30 +59,49 @@ export default function App() {
         // оновлюємо стан
         const newCount = count + 1;
         setGridData(newGridData);
-        return { x: newX, y: newY, dir: newDir, count: newCount };
+        return {
+          x: newX,
+          y: newY,
+          dir: newDir,
+          count: newCount,
+          limit: limit,
+          speed: antProps.speed,
+        };
       });
     };
 
-    const intervalId = setInterval(step, 250);
-
+    const intervalId = setInterval(step, ant.speed);
     return () => clearInterval(intervalId);
   }, [gridData, ant]);
 
   return (
     <>
       <div className="flex flex-col justify-center gap-px max-w-[95vw] mx-auto">
-        <div className="flex justify-around">
-          <h1 className="text-3xl font-bold mb-4 text-center">Мураха Ленгтона</h1>
-          <div className="flex flex-col w-20 bg-blue md:flex-row md:w-auto md:h-8">
-            <label htmlFor="count" className="text-sm ">
-              Ліміт кроків:
-            </label>
-            <input
-              type="number"
-              className="w-20 border border-none bg-inherit rounded-sm text-center"
-              value={ant.limit}
-              onChange={e => setAntLimit(Number(e.target.value))}
-            />
+        <div className="flex flex-col justify-around ">
+          <h1 className="text-3xl font-bold mb-2 text-center">Мураха Ленгтона</h1>
+          <div className="flex flex-row justify-evenly bg-blue mb-2 md:flex-row md:w-auto md:h-8">
+            <div className="md:flex gap-4">
+              <label className="text-sm self-center md:text-lg">Ліміт кроків:</label>
+              <input
+                type="number"
+                className="pl-2 w-16 border border-none bg-inherit rounded-sm text-left "
+                value={ant.limit}
+                onChange={e =>
+                  setAnt(antProps => ({ ...antProps, limit: Number(e.target.value) }))
+                }
+              />
+            </div>
+            <div className="md:flex gap-4">
+              <label className="text-sm self-center md:text-lg">Затримка:</label>
+              <input
+                type="number"
+                className="pl-2 w-16 border border-none bg-inherit rounded-sm text-left"
+                value={ant.speed}
+                onChange={e =>
+                  setAnt(antProps => ({ ...antProps, speed: Number(e.target.value) }))
+                }
+              />
+            </div>
           </div>
         </div>
         {gridData.map((rowArray, rowIndex) => (
@@ -94,7 +117,7 @@ export default function App() {
           </div>
         ))}
       </div>
-      <div className="flex justify-center w-full gap-2 mt-6 text-sm">
+      <div className="flex justify-center w-full gap-1 md:gap-4 mt-4 text-xs md:text-lg">
         <p>
           Сітка: {gridSize[1]} х {gridSize[0]}
         </p>
