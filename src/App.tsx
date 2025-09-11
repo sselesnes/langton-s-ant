@@ -122,7 +122,7 @@ export default function App() {
           Сітка: {gridSize[1]} х {gridSize[0]}
         </p>
         <p>
-          Позиція: ({ant.x}, {ant.y})
+          Позиція: {ant.x} x {ant.y}
         </p>
         <p>Напрямок: {ant.dir}</p>
         <p>Крок: {ant.count}</p>
