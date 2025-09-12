@@ -84,6 +84,8 @@ export default function App() {
 
   const handleStartStop = () => {
     if (!isRunning) {
+      // Обмежуємо швидкість
+      if (ant.speed < 25) ant.speed = 25;
       // Очищаємо сітку, коли симуляція починається
       setGridData(
         Array.from({ length: gridSize[0] }, () => Array.from({ length: gridSize[1] }, () => 0))
