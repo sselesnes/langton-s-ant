@@ -15,25 +15,34 @@ export default function App() {
     y: Math.round(gridSize[0] / 2),
     dir: 0,
     count: 0,
-    limit: 0,
-    speed: 250,
+    limit: 100,
+    speed: 150,
   });
 
   const [gridData, setGridData] = useState(() =>
     // створюємо rows [y] та заповнюємо кожен з cells (columns) [x]
     Array.from({ length: gridSize[0] }, () => Array.from({ length: gridSize[1] }, () => 0))
   );
+  // Додано стан для керування запуском/зупинкою симуляції
+  const [isRunning, setIsRunning] = useState(false);
 
   useEffect(() => {
+    // Зупиняємо симуляцію, якщо isRunning false
+    if (!isRunning) {
+      return;
+    }
+
     const step = () => {
       setAnt(antProps => {
         const { x, y, dir, count, limit } = antProps;
 
         const isOutOfGrid = y < 0 || y >= gridSize[0] || x < 0 || x >= gridSize[1];
         if (isOutOfGrid) {
+          setIsRunning(false); // Зупиняємо симуляцію, якщо мураха вийшла за межі
           return antProps;
         }
         if (limit && count >= limit) {
+          setIsRunning(false); // Зупиняємо, якщо досягнуто ліміту
           return antProps;
         }
 
@@ -41,7 +50,6 @@ export default function App() {
         const newGridData = gridData.map(row => [...row]);
 
         let newDir;
-
         // білий -> 90' за годинниковою стрілкою
         if (newGridData[y][x] === 0) {
           newDir = (dir + 1) % 4;
@@ -72,36 +80,63 @@ export default function App() {
 
     const intervalId = setInterval(step, ant.speed);
     return () => clearInterval(intervalId);
-  }, [gridData, ant]);
+  }, [isRunning, ant.speed, gridData, ant.limit, ant.count]);
+
+  const handleStartStop = () => {
+    if (!isRunning) {
+      // Очищаємо сітку, коли симуляція починається
+      setGridData(
+        Array.from({ length: gridSize[0] }, () => Array.from({ length: gridSize[1] }, () => 0))
+      );
+      // Скидаємо стан мурахи
+      setAnt({
+        x: Math.round(gridSize[1] / 2),
+        y: Math.round(gridSize[0] / 2),
+        dir: 0,
+        count: 0,
+        limit: ant.limit,
+        speed: ant.speed,
+      });
+    }
+    setIsRunning(!isRunning);
+  };
 
   return (
-    <>
-      <div className="flex flex-col justify-center gap-px max-w-[95vw] mx-auto">
-        <div className="flex flex-col justify-around ">
-          <h1 className="text-3xl font-bold mb-2 text-center">Мураха Ленгтона</h1>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white font-inter p-4">
+      <div className="flex flex-col justify-center gap-px mx-auto max-w-[95vw]">
+        <div className="flex flex-col justify-around">
+          <h1 className="text-3xl font-bold mb-3 text-center">Мураха Ленгтона</h1>
           <div className="flex flex-row justify-evenly bg-blue mb-2 md:flex-row md:w-auto md:h-8">
-            <div className="md:flex gap-4">
+            <div className="flex gap-4 items-center">
               <label className="text-sm self-center md:text-lg">Ліміт кроків:</label>
               <input
                 type="number"
-                className="pl-2 w-16 border border-none bg-inherit rounded-sm text-left "
+                className="pl-2 w-16 border border-none bg-inherit rounded-sm text-left text-gray-300 disabled:opacity-50"
                 value={ant.limit}
                 onChange={e =>
                   setAnt(antProps => ({ ...antProps, limit: Number(e.target.value) }))
                 }
+                disabled={isRunning}
               />
             </div>
-            <div className="md:flex gap-4">
+            <div className="flex gap-4 items-center">
               <label className="text-sm self-center md:text-lg">Затримка:</label>
               <input
                 type="number"
-                className="pl-2 w-16 border border-none bg-inherit rounded-sm text-left"
+                className="pl-2 w-16 border border-none bg-inherit rounded-sm text-left text-gray-300 disabled:opacity-50"
                 value={ant.speed}
                 onChange={e =>
                   setAnt(antProps => ({ ...antProps, speed: Number(e.target.value) }))
                 }
+                disabled={isRunning}
               />
             </div>
+            <button
+              onClick={handleStartStop}
+              className="px-3 py-1 bg-blue-500 text-white font-bold rounded-md hover:bg-blue-700 disabled:opacity-50"
+            >
+              {isRunning ? "Стоп" : "Пуск"}
+            </button>
           </div>
         </div>
         {gridData.map((rowArray, rowIndex) => (
@@ -127,11 +162,11 @@ export default function App() {
         <p>Напрямок: {ant.dir}</p>
         <p>Крок: {ant.count}</p>
       </div>
-    </>
+    </div>
   );
 }
 
-function Cell({
+export function Cell({
   cellValue,
   antIsHere,
   antDirection,
