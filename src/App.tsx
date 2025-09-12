@@ -17,6 +17,7 @@ export default function App() {
     count: 0,
     limit: 100,
     speed: 150,
+    isMoving: false,
   });
 
   const [gridData, setGridData] = useState(() =>
@@ -34,7 +35,12 @@ export default function App() {
 
     const step = () => {
       setAnt(antProps => {
-        const { x, y, dir, count, limit } = antProps;
+        if (antProps.isMoving) {
+          return antProps; // Якщо вже в русі, нічого не робимо
+        }
+        antProps.isMoving = true;
+        const newAntProps = { ...antProps, isMoving: true };
+        const { x, y, dir, count, limit } = newAntProps;
 
         const isOutOfGrid = y < 0 || y >= gridSize[0] || x < 0 || x >= gridSize[1];
         if (isOutOfGrid) {
@@ -67,6 +73,7 @@ export default function App() {
         // оновлюємо стан
         const newCount = count + 1;
         setGridData(newGridData);
+        antProps.isMoving = false;
         return {
           x: newX,
           y: newY,
@@ -74,6 +81,7 @@ export default function App() {
           count: newCount,
           limit: limit,
           speed: antProps.speed,
+          isMoving: false,
         };
       });
     };
@@ -85,7 +93,7 @@ export default function App() {
   const handleStartStop = () => {
     if (!isRunning) {
       // Обмежуємо швидкість
-      if (ant.speed < 25) ant.speed = 25;
+      // if (ant.speed < 25) ant.speed = 25;
       // Очищаємо сітку, коли симуляція починається
       setGridData(
         Array.from({ length: gridSize[0] }, () => Array.from({ length: gridSize[1] }, () => 0))
@@ -98,6 +106,7 @@ export default function App() {
         count: 0,
         limit: ant.limit,
         speed: ant.speed,
+        isMoving: false,
       });
     }
     setIsRunning(!isRunning);
