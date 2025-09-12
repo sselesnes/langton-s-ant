@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
+import Copyright from "./Copyright";
 
 const gridSize = [40, 60]; // rows [y], columns[x]
 
@@ -8,6 +9,41 @@ const antDir = [
   { dx: 0, dy: 1 }, // 2: down
   { dx: -1, dy: 0 }, // 3: left
 ];
+
+export function Cell({
+  cellValue,
+  antIsHere,
+  antDirection,
+}: {
+  cellValue: number;
+  antIsHere: boolean;
+  antDirection: number;
+}) {
+  const cellState = `w-[clamp(1px,8vw,1rem)] aspect-square relative ${
+    cellValue === 1 ? "bg-blue-500" : "bg-gray-300"
+  }`;
+
+  return (
+    <div className={cellState}>
+      {antIsHere && (
+        <div
+          className="absolute -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center"
+          style={{ transform: `rotate(${antDirection * 90}deg)` }}
+        >
+          <svg
+            width="32"
+            height="32"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M12 2L2 22H22L12 2Z" fill="#FFFFFF" />
+          </svg>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function App() {
   const [ant, setAnt] = useState({
@@ -19,6 +55,31 @@ export default function App() {
     speed: 150,
     isMoving: false,
   });
+
+  const [showCopyright, setShowCopyright] = useState(false);
+  const intersectionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // 'entry.isIntersecting' is true if the element is in the viewport
+        setShowCopyright(entry.isIntersecting);
+      },
+      { threshold: 0 } // The observer will fire as soon as the element crosses the viewport border
+    );
+
+    // If the ref exists, start observing the element
+    if (intersectionRef.current) {
+      observer.observe(intersectionRef.current);
+    }
+
+    // Clean up the observer when the component unmounts
+    return () => {
+      if (intersectionRef.current) {
+        observer.unobserve(intersectionRef.current);
+      }
+    };
+  }, []);
 
   const [gridData, setGridData] = useState(() =>
     // створюємо rows [y] та заповнюємо кожен з cells (columns) [x]
@@ -113,16 +174,16 @@ export default function App() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white font-inter p-4">
+    <div className="flex flex-col  justify-center text-white font-inter ">
       <div className="flex flex-col justify-center gap-px mx-auto max-w-[95vw]">
         <div className="flex flex-col justify-around">
-          <h1 className="text-3xl font-bold mb-3 text-center">Мураха Ленгтона</h1>
-          <div className="flex flex-row justify-evenly bg-blue mb-2 md:flex-row md:w-auto md:h-8">
-            <div className="flex gap-4 items-center">
-              <label className="text-sm self-center md:text-lg">Ліміт кроків:</label>
+          <h1 className="text-3xl font-bold mb-6 text-center">Мураха Ленгтона</h1>
+          <div className="flex flex-row justify-evenly bg-blue mb-2 md:h-8">
+            <div className="flex gap-1 md:gap-4 items-center ">
+              <label className=" text-sm self-center md:text-lg">Ліміт кроків:</label>
               <input
                 type="number"
-                className="pl-2 w-16 border border-none bg-inherit rounded-sm text-left text-gray-300 disabled:opacity-50"
+                className="w-16 border border-none bg-inherit rounded-sm text-left text-gray-300 disabled:opacity-50"
                 value={ant.limit}
                 onChange={e =>
                   setAnt(antProps => ({ ...antProps, limit: Number(e.target.value) }))
@@ -130,8 +191,8 @@ export default function App() {
                 disabled={isRunning}
               />
             </div>
-            <div className="flex gap-4 items-center">
-              <label className="text-sm self-center md:text-lg">Затримка:</label>
+            <div className="flex gap-1 md:gap-4 items-center">
+              <label className=" text-sm self-center md:text-lg">Затримка:</label>
               <input
                 type="number"
                 className="pl-2 w-16 border border-none bg-inherit rounded-sm text-left text-gray-300 disabled:opacity-50"
@@ -150,64 +211,35 @@ export default function App() {
             </button>
           </div>
         </div>
-        {gridData.map((rowArray, rowIndex) => (
-          <div key={rowIndex} className="flex gap-px">
-            {rowArray.map((cellValue, colIndex) => (
-              <Cell
-                key={`${rowIndex}-${colIndex}`}
-                cellValue={cellValue}
-                antIsHere={ant.x === colIndex && ant.y === rowIndex}
-                antDirection={ant.dir}
-              />
-            ))}
-          </div>
-        ))}
-      </div>
-      <div className="flex justify-center w-full gap-1 md:gap-4 mt-4 text-xs md:text-lg">
-        <p>
-          Сітка: {gridSize[1]} х {gridSize[0]}
-        </p>
-        <p>
-          Позиція: {ant.x} x {ant.y}
-        </p>
-        <p>Напрямок: {ant.dir}</p>
-        <p>Крок: {ant.count}</p>
-      </div>
-    </div>
-  );
-}
-
-export function Cell({
-  cellValue,
-  antIsHere,
-  antDirection,
-}: {
-  cellValue: number;
-  antIsHere: boolean;
-  antDirection: number;
-}) {
-  const cellState = `w-[clamp(1px,8vw,1rem)] aspect-square transition-colors duration-100 ease-in-out relative overflow-hidden ${
-    cellValue === 1 ? "bg-blue-500" : "bg-gray-300"
-  }`;
-
-  return (
-    <div className={cellState}>
-      {antIsHere && (
-        <div
-          className="absolute -translate-x-1/2 -translate-y-1/2 w-full h-full flex items-center justify-center z-10 transition-transform duration-100 ease-in-out"
-          style={{ transform: `rotate(${antDirection * 90}deg)` }}
-        >
-          <svg
-            width="32"
-            height="32"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path d="M12 2L2 22H22L12 2Z" fill="#FFFFFF" />
-          </svg>
+        <div className="pt-2 pb-1 flex flex-col gap-px">
+          {gridData.map((rowArray, rowIndex) => (
+            <div key={rowIndex} className="flex gap-px">
+              {rowArray.map((cellValue, colIndex) => (
+                <Cell
+                  key={`${rowIndex}-${colIndex}`}
+                  cellValue={cellValue}
+                  antIsHere={ant.x === colIndex && ant.y === rowIndex}
+                  antDirection={ant.dir}
+                />
+              ))}
+            </div>
+          ))}
         </div>
-      )}
+
+        <div className="flex justify-center w-full xs:gap-1 sm:gap-3 md:gap-8 mt-4 text-xs md:text-lg">
+          <p>
+            Сітка: {gridSize[1]} х {gridSize[0]}
+          </p>
+          <p>
+            Позиція: {ant.x} x {ant.y}
+          </p>
+          <p>Напрямок: {ant.dir}</p>
+          <p>Крок: {ant.count}</p>
+        </div>
+        <div ref={intersectionRef}>
+          <Copyright isVisible={showCopyright} />
+        </div>
+      </div>
     </div>
   );
 }

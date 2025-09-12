@@ -1,0 +1,24 @@
+.main {
+  display: flex;
+  justify-content: end;
+  font-size: 7px;
+  font-weight: 600;
+  position: fixed;
+  bottom: 4px;
+  right: 8px;
+  padding: 0;
+}
+.main > * + * {
+  margin-left: 0.2rem;
+}
+
+.visible {
+  /* display: block; */
+  visibility: visible;
+  opacity: 0.5;
+}
+.hidden {
+  /* display: none; */
+  visibility: hidden;
+  opacity: 0;
+}
